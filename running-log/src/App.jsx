@@ -1,4 +1,5 @@
 import './App.css'
+import RunCard from './components/RunCard'
 
 function App() {
   return (
@@ -20,12 +21,7 @@ function App() {
         </section>
         <section className="recent_record">
           <h2>최근 러닝</h2>
-          <div className="record_container">
-            <p className="record date">2026.09.19</p>
-            <p className="record distance">5.03 km</p>
-            <p className="record duration">31:24</p>
-            <p className="record cadence"> 평균 케이던스 172 spm</p>
-          </div>
+          <RunCard />
         </section>
       </main>
     </>
