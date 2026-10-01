@@ -45,6 +45,9 @@ function App() {
         <section className="recent_record">
           <h2>최근 러닝</h2>
           {
+            runs.length === 0 ? (
+              <p>아직 러닝 기록이 없습니다.</p>
+            ) :
             runs.map((run) => (
               <RunCard
                 key={run.id}
