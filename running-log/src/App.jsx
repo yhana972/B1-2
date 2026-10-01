@@ -21,7 +21,8 @@ function App() {
         </section>
         <section className="recent_record">
           <h2>최근 러닝</h2>
-          <RunCard />
+          <RunCard date="2026.09.19" distance={5.03} duration="31:24" cadence={172}/>
+          <RunCard date="2026.09.25" distance={3.21} duration="20:15" cadence={168}/>
         </section>
       </main>
     </>
