@@ -11,6 +11,8 @@ function RunForm(){
 
     const [error, setError] = useState('');
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     function handleChange(event){
         const {name, value} = event.target;
 
@@ -26,7 +28,12 @@ function RunForm(){
             setError('필수 항목을 모두 입력해주세요.');
         }else{
             setError('');
-            console.log(formData)
+            setIsSubmitting(true);
+            setTimeout(()=>{
+                console.log(formData)
+                setIsSubmitting(false);
+            }, 2000) //2초 기다림
+            
         }
     }
     return(
@@ -37,7 +44,7 @@ function RunForm(){
             <input type="text" name="avgPace" value={formData.avgPace} onChange={handleChange}/>
             <input type="text" name="avgCadence" value={formData.avgCadence} onChange={handleChange}/>
             {error && <p className="error">{error}</p> }
-            <button type="submit">기록하기</button>
+            <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : '기록하기'}</button>
         </form>
     )
 }
