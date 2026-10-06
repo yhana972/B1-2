@@ -1,5 +1,6 @@
 import './App.css'
 import RunCard from './components/RunCard'
+import RunForm from './components/RunForm'
 
 function App() {
   const runs = [
@@ -58,6 +59,10 @@ function App() {
               />
             ))
           }
+        </section>
+        <section className="run_form">
+          <h2>새 러닝 기록</h2>
+          <RunForm />
         </section>
       </main>
     </>
