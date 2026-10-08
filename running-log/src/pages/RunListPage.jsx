@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import RunCard from "../components/RunCard";
 function RunListPage(){
     const runs = [
@@ -26,6 +27,9 @@ function RunListPage(){
     return(
         <section className="recent_record">
             <h2>최근 러닝</h2>
+            <Link className="button" to="/runs/new">
+                새 기록 작성
+            </Link>
             {
                 runs.length === 0 ? (
                 <p>아직 러닝 기록이 없습니다.</p>
