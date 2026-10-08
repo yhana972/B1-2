@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FormField from "./FormField";
 
 function RunForm(){
     const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ function RunForm(){
             ...formData,
             [name]: value
         })
-        
+
         if(errors[name]){
             setErrors({
                 ...errors,
@@ -67,26 +68,46 @@ function RunForm(){
     }
     return(
         <form className="run-form" onSubmit={handleSubmit}>
-            <input type="date" name="date" value={formData.date} onChange={handleChange}/>
-            {errors.date && (
-                <p className="error">{errors.date}</p>
-            )}
-            <input type="text" name="distance" value={formData.distance} onChange={handleChange}/>
-            {errors.distance && (
-                <p className="error">{errors.distance}</p>
-            )}
-            <input type="text" name="duration" value={formData.duration} onChange={handleChange}/>
-            {errors.duration && (
-                <p className="error">{errors.duration}</p>
-            )}
-            <input type="text" name="avgPace" value={formData.avgPace} onChange={handleChange}/>
-            {errors.avgPace && (
-                <p className="error">{errors.avgPace}</p>
-            )}
-            <input type="text" name="avgCadence" value={formData.avgCadence} onChange={handleChange}/>
-            {errors.avgCadence && (
-                <p className="error">{errors.avgCadence}</p>
-            )}
+            <FormField
+                label="날짜"
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                error={errors.date}
+            />
+            <FormField
+                label="거리(km)"
+                type="number"
+                name="distance"
+                value={formData.distance}
+                onChange={handleChange}
+                error={errors.distance}
+            />
+            <FormField 
+                label="시간(분)"
+                type="number"
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                error={errors.duration}
+            />
+            <FormField 
+                label="평균 페이스"
+                type="text"
+                name="avgPace"
+                value={formData.avgPace}
+                onChange={handleChange}
+                error={errors.avgPace}
+            />
+            <FormField 
+                label="평균 케이던스"
+                type="number"
+                name="avgCadence"
+                value={formData.avgCadence}
+                onChange={handleChange}
+                error={errors.avgCadence}
+            />
             <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : '기록하기'}</button>
         </form>
     )
