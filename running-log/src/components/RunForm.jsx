@@ -13,13 +13,23 @@ function RunForm(){
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // input 값이 변경될 때마다 formData 상태를 업데이트
     function handleChange(event){
         const {name, value} = event.target;
         setFormData({
             ...formData,
             [name]: value
         })
+        
+        if(errors[name]){
+            setErrors({
+                ...errors,
+                [name]:''
+            })
+        }   
     }
+
+    // form 제출 시 유효성 검사 및 제출 처리
     function handleSubmit(event){
         const newErrors = { }
         event.preventDefault();
@@ -45,7 +55,7 @@ function RunForm(){
             setErrors(newErrors);
             return
         }
-        
+
         // 에러가 없으면 제출
         setErrors({});
         setIsSubmitting(true);
