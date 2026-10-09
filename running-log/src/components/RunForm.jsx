@@ -1,5 +1,7 @@
 import { useState } from "react";
 import FormField from "./FormField";
+import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router"
 
 function RunForm(){
     const [formData, setFormData] = useState({
@@ -11,8 +13,10 @@ function RunForm(){
     })
 
     const [errors, setErrors] = useState({});
-
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+
+    const navigate = useNavigate()
 
     // input 값이 변경될 때마다 formData 상태를 업데이트
     function handleChange(event){
@@ -30,9 +34,10 @@ function RunForm(){
         }   
     }
 
-    // form 제출 시 유효성 검사 및 제출 처리
-    function handleSubmit(event){
+    // form 제출 시 실행되는 함수
+    async function handleSubmit(event){
         const newErrors = { }
+        
         event.preventDefault();
         
         if(!formData.date){
@@ -59,12 +64,33 @@ function RunForm(){
 
         // 에러가 없으면 제출
         setErrors({});
+        setSubmitError('');
         setIsSubmitting(true);
-        setTimeout(()=>{
-            console.log(formData)
+
+
+        try{
+            const {error} = await supabase
+            .from('running_records')
+            .insert([{
+                date:formData.date,
+                distance:Number(formData.distance),
+                duration:formData.duration,
+                avg_pace:formData.avgPace,
+                avg_cadence:Number(formData.avgCadence)
+            }])
+
+            if(error){
+                throw error;
+            }
+            navigate('/runs')
+        }
+        catch(error){
+            setSubmitError("기록 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+            console.error(error);
+        }
+        finally{
             setIsSubmitting(false);
-        }, 2000) //2초 기다림
-            
+        }
     }
     return(
         <form className="run-form" onSubmit={handleSubmit}>
@@ -108,6 +134,7 @@ function RunForm(){
                 onChange={handleChange}
                 error={errors.avgCadence}
             />
+            {submitError && <p className="error">{submitError}</p>}
             <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : '기록하기'}</button>
         </form>
     )
