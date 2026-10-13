@@ -1,30 +1,7 @@
 import { Link } from "react-router";
 import RunCard from "../components/RunCard";
 import { useState, useEffect } from "react";
-
-const mockRuns = [
-        {
-        id : 1,
-        date : "2026.09.19",
-        distance : 5.03,
-        duration : "31:24",
-        cadence : 172
-        },
-        {
-        id : 2,
-        date : "2026.09.25",
-        distance : 3.21,
-        duration : "20:15",
-        cadence : 168
-        },
-        {
-        id : 3,
-        date : "2026.09.28",
-        distance : 7.00,
-        duration : "45:10",
-        cadence : 175
-        }
-    ]
+import { supabase } from "../lib/supabaseClient";
 
 function RunListPage(){
     const [runs, setRuns] = useState([]);
@@ -32,19 +9,23 @@ function RunListPage(){
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const shouldFail = false
-
-            if(shouldFail){
-                setError('러닝 기록을 불러오는데 실패했습니다.');
+        async function fetchRuns(){
+            try{
+                const { data, error } = await supabase
+                    .from('running_records')
+                    .select('*')
+                    .order('date', {ascending: false}); // 최근 기록이 먼저 보이도록 내림차순 정렬
+                if(error) throw error;
+                setRuns(data);
+            }catch(error){
+                setError('러닝 기록을 불러오는 중 오류가 발생했습니다.');
+                console.error(error);
+            }finally{
                 setLoading(false);
-                return;
             }
-            setRuns(mockRuns);
-            setLoading(false);
-        }, 2000)
+        }
 
-        return () => {clearTimeout(timer)}
+        fetchRuns();
     }, [])
 
     return(
@@ -66,7 +47,7 @@ function RunListPage(){
                                 date={run.date}
                                 distance={run.distance}
                                 duration={run.duration}
-                                cadence={run.cadence}
+                                cadence={run.avg_cadence}
                             />
                         ))
             }
