@@ -1,6 +1,3 @@
-
-import {Link} from "react-router"
-
 function HomePage(){
     return(
         <section className="hero">

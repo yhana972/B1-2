@@ -37,10 +37,11 @@ function RunDetailPage() {
                 ?(<p>러닝 기록을 불러오는 중...</p>)
                 :error
                     ?(<p>{error}</p>)
-                    :run.length === 0
+                    :run === null
                         ?(<p>러닝 기록을 찾을 수 없습니다.</p>)
                         :(
                             <RunCard
+                                id = {run.id}
                                 date={run.date}
                                 distance={run.distance}
                                 duration={run.duration}

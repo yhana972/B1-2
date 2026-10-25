@@ -43,7 +43,8 @@ function RunListPage(){
                         ? (<p>아직 러닝 기록이 없습니다.</p>) 
                         :runs.map((run) => (
                             <RunCard
-                                key={run.id}
+                                key={run.id}    //key는 React가 목록 항목을 구분하는 특별한 값이어서 컴포넌트 내부의 props로 전달되지 않음. 
+                                id={run.id}     //카드가 이동 주소를 만들려면 id를 별도로 받아야 함. 
                                 date={run.date}
                                 distance={run.distance}
                                 duration={run.duration}
