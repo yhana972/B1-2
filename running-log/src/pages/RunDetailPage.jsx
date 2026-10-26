@@ -39,7 +39,7 @@ function RunDetailPage() {
                     ?(<p>{error}</p>)
                     :run === null
                         ?(<p>러닝 기록을 찾을 수 없습니다.</p>)
-                        :(
+                        :<>
                             <RunCard
                                 id = {run.id}
                                 date={run.date}
@@ -47,7 +47,11 @@ function RunDetailPage() {
                                 duration={run.duration}
                                 cadence={run.avg_cadence}
                             />
-                        )
+                            <div className='recommend_bpm'>
+                                <h2>추천 음악 BPM</h2>
+                                <p>{run.avg_cadence - 5}~{run.avg_cadence + 5} BPM</p>
+                            </div>
+                        </>
             }
         </section>
     )
