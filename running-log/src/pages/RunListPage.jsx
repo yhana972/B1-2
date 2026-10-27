@@ -2,6 +2,9 @@ import { Link } from "react-router";
 import RunCard from "../components/RunCard";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
+import EmptyState from '../components/EmptyState'
 
 function RunListPage(){
     const [runs, setRuns] = useState([]);
@@ -36,11 +39,11 @@ function RunListPage(){
             </Link>
             {
                 loading
-                ?(<p>러닝 기록을 불러오는 중...</p>)
+                ?(<Loading message={"러닝 기록을 불러오는 중..."}/>)
                 :error
-                    ?(<p>{error}</p>)
+                    ?(<ErrorState message={error}/>)
                     :runs.length === 0 
-                        ? (<p>아직 러닝 기록이 없습니다.</p>) 
+                        ? (<EmptyState message={"아직 러닝 기록이 없습니다."}/>) 
                         :runs.map((run) => (
                             <RunCard
                                 key={run.id}    //key는 React가 목록 항목을 구분하는 특별한 값이어서 컴포넌트 내부의 props로 전달되지 않음. 

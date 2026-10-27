@@ -4,6 +4,9 @@ import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from "react-router"
 import RunCard from '../components/RunCard';
 import useRun from '../hooks/useRun';
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
+import EmptyState from '../components/EmptyState'
 
 
 function RunDetailPage() {
@@ -46,11 +49,11 @@ function RunDetailPage() {
             <h2>러닝 상세 기록</h2>
             {
                 loading
-                ?(<p>러닝 기록을 불러오는 중...</p>)
+                ?(<Loading message={"러닝 기록을 불러오는 중..."}/>)
                 :error
-                    ?(<p>{error}</p>)
+                    ?(<ErrorState message={error}/>)
                     :run === null
-                        ?(<p>러닝 기록을 찾을 수 없습니다.</p>)
+                        ?(<EmptyState message={"러닝 기록을 찾을 수 없습니다."}/>)
                         :<>
                             <RunCard
                                 id = {run.id}
@@ -64,7 +67,7 @@ function RunDetailPage() {
                                 <p>{run.avg_cadence - 5}~{run.avg_cadence + 5} BPM</p>
                             </div>
                             <Link className='button' to={`/runs/${run.id}/edit`}>기록 수정</Link>
-                            {deleteError && <p className='error'>{deleteError}</p>}
+                            {deleteError && <ErrorState message={deleteError}/>}
                             <button type='button' onClick={handleDelete} disabled={isDeleting}>{isDeleting?"삭제 중...":"기록 삭제"}</button>
                         </>
             }

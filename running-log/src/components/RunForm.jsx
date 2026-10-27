@@ -2,6 +2,7 @@ import { useState } from "react";
 import FormField from "./FormField";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router"
+import ErrorState from '../components/ErrorState'
 
 function RunForm({initialData = {}, mode = 'create'}){
     const [formData, setFormData] = useState({
@@ -156,7 +157,7 @@ function RunForm({initialData = {}, mode = 'create'}){
                 onChange={handleChange}
                 error={errors.avgCadence}
             />
-            {submitError && <p className="error">{submitError}</p>}
+            {submitError && <ErrorState message={submitError}/>}
             <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : (isEdit? '수정하기':'기록하기')}</button>
         </form>
     )
