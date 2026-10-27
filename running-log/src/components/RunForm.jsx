@@ -3,13 +3,13 @@ import FormField from "./FormField";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router"
 
-function RunForm(){
+function RunForm({initialData = {}, mode = 'create'}){
     const [formData, setFormData] = useState({
-        date : '',
-        distance : '',
-        duration : '',
-        avgPace : '',
-        avgCadence : '',
+        date : initialData.date??'',
+        distance : initialData.distance??'',
+        duration : initialData.duration??'',
+        avgPace : initialData.avg_pace??'',
+        avgCadence : initialData.avg_cadence??'',
     })
 
     const [errors, setErrors] = useState({});
@@ -17,6 +17,7 @@ function RunForm(){
     const [submitError, setSubmitError] = useState('');
 
     const navigate = useNavigate()
+    const isEdit = mode === 'edit'
 
     // input 값이 변경될 때마다 formData 상태를 업데이트
     function handleChange(event){
@@ -69,20 +70,41 @@ function RunForm(){
 
 
         try{
-            const {error} = await supabase
-            .from('running_records')
-            .insert([{
+            //데이터 준비
+            const recordData = { 
                 date:formData.date,
                 distance:Number(formData.distance),
                 duration:formData.duration,
                 avg_pace:formData.avgPace,
                 avg_cadence:Number(formData.avgCadence)
-            }])
-
-            if(error){
-                throw error;
             }
-            navigate('/runs')
+
+            if(isEdit){
+                //기존 기록 수정
+                const {data, error} = await supabase
+                .from('running_records')
+                .update(recordData)
+                .eq('id', initialData.id)
+                .select()
+
+                console.log('수정결과', {data, error})
+
+                if(error){
+                    throw error;
+                }
+                navigate(`/runs/${initialData.id}`)
+            }else{
+                //새 기록 저장
+                 //서버 요청
+                const {error} = await supabase
+                .from('running_records')
+                .insert([recordData])
+
+                if(error){
+                    throw error;
+                }
+                navigate('/runs')
+            }
         }
         catch(error){
             setSubmitError("기록 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -135,7 +157,7 @@ function RunForm(){
                 error={errors.avgCadence}
             />
             {submitError && <p className="error">{submitError}</p>}
-            <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : '기록하기'}</button>
+            <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : (isEdit? '수정하기':'기록하기')}</button>
         </form>
     )
 }

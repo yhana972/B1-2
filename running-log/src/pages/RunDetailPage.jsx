@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router'
+import { useParams, Link } from 'react-router'
 import { supabase } from '../lib/supabaseClient';
 import RunCard from '../components/RunCard';
 
@@ -51,6 +51,7 @@ function RunDetailPage() {
                                 <h2>추천 음악 BPM</h2>
                                 <p>{run.avg_cadence - 5}~{run.avg_cadence + 5} BPM</p>
                             </div>
+                            <Link className='button' to={`/runs/${run.id}/edit`}>기록 수정</Link>
                         </>
             }
         </section>

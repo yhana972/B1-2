@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import RunListPage from './pages/RunListPage'
 import RunCreatePage from './pages/RunCreatePage' 
 import RunDetailPage from './pages/RunDetailPage'
+import RunEditPage from './pages/RunEditPage'
 
 function App() {
   
@@ -15,6 +16,7 @@ function App() {
         <Route path="/runs" element={<RunListPage />} />
         <Route path="/runs/new" element={<RunCreatePage />} />
         <Route path="/runs/:id" element={<RunDetailPage />} />
+        <Route path="/runs/:id/edit" element={<RunEditPage/>} />
       </Routes>
     </Layout>
   )
