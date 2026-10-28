@@ -30,7 +30,7 @@ button, .button {
   min-height: 46px;
   padding: 11px 20px;
   border: 1px solid var(--accent);
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--accent);
   color: white;
   font-size: 0.94rem;
