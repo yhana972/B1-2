@@ -132,6 +132,7 @@ function RunForm({initialData = {}, mode = 'create'}){
             <FormField
                 label="거리(km)"
                 type="number"
+                step="0.01"
                 name="distance"
                 value={formData.distance}
                 onChange={handleChange}

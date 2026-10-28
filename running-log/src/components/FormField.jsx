@@ -1,9 +1,10 @@
-function FormField({label, type, name, value, onChange, error}){
+function FormField({label, type, name, value, onChange, error, step}){
     return(
         <div className="form-field">
             <label htmlFor={name}>{label}</label>
             <input 
                 type={type}
+                step={step}
                 id={name}
                 name={name}
                 value={value}
