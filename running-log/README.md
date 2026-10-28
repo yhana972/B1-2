@@ -6,6 +6,8 @@ React를 학습하며 만든 러닝 기록 SPA입니다. 러닝 기록을 등록
 - 앱 소스 위치: 저장소의 `running-log/`
 - 배포 URL: [Running Log](https://b1-2-flame.vercel.app/)
 - 배포 실행 증거: [CRUD 수행 로그와 화면 캡처 3장](docs/deployment-verification.md)
+- 평가 설명: [질문 16개에 대한 학습·설명 Wiki](https://github.com/yhana972/B1-2/wiki/B1-2-Learning-Guide)
+- 평가 보완: [15개 피드백별 대응 위치](docs/evaluation-followup.md)
 
 ## 주요 기능
 
@@ -81,10 +83,10 @@ npm.cmd run preview
 
 ```text
 src/
-├── components/   # 재사용 UI와 공통 레이아웃
+├── components/   # RunForm.jsx, FormField.jsx, RunCard.jsx 등 재사용 UI
 ├── hooks/        # useRun.js: 단건 조회 Hook
 ├── lib/          # supabaseClient.js: Supabase 연결
-├── pages/        # 홈, 목록, 작성, 상세, 수정, Not Found
+├── pages/        # RunListPage.jsx, RunDetailPage.jsx, RunEditPage.jsx 등
 ├── App.jsx       # 라우트 구성
 ├── App.css
 ├── main.jsx      # React 진입점과 BrowserRouter
@@ -93,24 +95,104 @@ src/
 
 ### 재사용 컴포넌트
 
-| 컴포넌트 | 주요 props와 역할 |
-| --- | --- |
-| Layout | children으로 받은 페이지에 공통 헤더 적용 |
-| RunCard | id와 기록 데이터로 카드 표시 및 상세 이동 |
-| RunForm | initialData와 mode에 따라 작성·수정 폼 구성 |
-| FormField | 입력 속성, 값, 변경 함수, 오류로 입력 UI 구성 |
-| SubmitButton | isSubmitting과 label로 문구·비활성화 제어 |
-| Loading | message로 로딩 안내 |
-| ErrorState | message로 오류 안내, role="alert" 사용 |
-| EmptyState | message로 빈 상태 안내 |
+| 컴포넌트 | 주요 props와 역할 | 사용하는 상황 |
+| --- | --- | --- |
+| Layout | children으로 받은 페이지에 공통 헤더 적용 | 모든 라우트의 공통 틀 |
+| RunCard | id와 기록 데이터로 카드 표시 및 상세 이동 | 목록의 각 기록과 상세 기록 표시 |
+| RunForm | initialData와 mode에 따라 작성·수정 폼 구성 | 새 기록 작성 및 기존 기록 편집 |
+| FormField | 입력 속성, 값, 변경 함수, 오류, step으로 입력 UI 구성 | 폼의 날짜·거리·시간·페이스·케이던스 입력 |
+| SubmitButton | isSubmitting과 label로 문구·비활성화 제어 | 작성·수정 폼 제출 |
+| Loading | message로 로딩 안내 | 조회 응답을 기다리는 동안 |
+| ErrorState | message로 오류 안내, role="alert" 사용 | 조회·저장·삭제 요청 실패 |
+| EmptyState | message로 빈 상태 안내 | 요청은 성공했지만 목록이 비었거나 기록이 없을 때 |
 
 위 8개는 props에 따라 내용이나 동작이 달라집니다. Header와 Navigation은 공통 화면 구조를 담당합니다.
 
 ### 상태와 데이터 흐름
 
-`useRun(id)`는 상세·수정 페이지에서 단건 조회를 수행하고 `{ run, loading, error }`를 반환합니다. ID가 바뀌면 조회 상태를 초기화하며 Effect cleanup으로 이전 요청의 늦은 응답을 무시합니다. 각 호출은 독립적인 state를 갖습니다.
+`useRun(id)`는 상세·수정 페이지에서 반복하던 단건 조회와 상태 처리를 공유하기 위해 분리했습니다. 페이지는 화면 구성을, Hook은 조회를 담당하며 `{ run, loading, error }`를 반환합니다. 각 호출은 독립적인 state를 갖습니다.
+
+```jsx
+// RunDetailPage와 RunEditPage에서 같은 조회 로직 사용
+const { id } = useParams()
+const { run, loading, error } = useRun(id)
+```
+
+Effect의 의존성은 `[id]`입니다. 최초 실행 및 ID 변경 후 새 요청을 시작할 때 `loading=true`, `error=''`, `run=null`로 초기화합니다. ID 변경 시 이전 Effect의 cleanup에서 `ignore=true`로 바꿔 늦은 응답이 새 기록을 덮어쓰지 않게 합니다. 이는 요청 취소가 아니라 결과 무시입니다. 목록 조회는 RunListPage의 빈 의존성 배열 `[]`을 사용하며, 페이지가 마운트될 때 실행됩니다.
 
 폼은 formData로 입력값을 관리합니다. 필수값 검증을 통과하면 DB 컬럼명에 맞는 recordData를 만들어 작성 모드에서는 INSERT, 수정 모드에서는 ID 조건을 지정한 UPDATE를 실행합니다. 수정·삭제 결과가 0개면 실패로 처리합니다. 성공 후 목록 또는 상세 페이지로 이동합니다.
+
+#### props와 state의 위치
+
+RunForm은 `formData`, `errors`, `isSubmitting`, `submitError`를 관리하고, 자식 FormField에는 `value`와 `onChange`를 props로 전달합니다. FormField가 입력 이벤트를 전달하면 부모의 handleChange가 state를 바꿔 새 값을 다시 내려줍니다.
+
+```jsx
+// RunForm: 입력값과 변경 함수를 자식에게 전달
+<FormField name="distance" value={formData.distance} onChange={handleChange} />
+// RunEditPage: 조회한 기록과 모드를 폼에 전달
+<RunForm initialData={run} mode="edit" />
+```
+
+목록 데이터는 RunListPage, 단건 데이터는 useRun에 두었습니다. 삭제 중 상태와 삭제 오류는 RunDetailPage에 둬 조회 실패와 구분합니다. `initialData`는 폼의 최초 state를 채우는 값이며, props 변경이 기존 입력 state를 자동으로 덮어쓰는 구조는 아닙니다.
+
+#### 저장·삭제 후 화면 갱신
+
+전역 캐시를 직접 변경하거나 자동 무효화하는 방식은 사용하지 않습니다. 원격 작업 성공 후 이동한 페이지가 마운트되면서 SELECT를 다시 수행합니다.
+
+| 작업 | 이동·재조회 흐름 |
+| --- | --- |
+| 생성 | `/runs/new` → RunForm 제출 → INSERT → `navigate('/runs')` → RunListPage 마운트 → 목록 SELECT → 새 카드 표시 |
+| 수정 | `/runs/:id/edit` → 기존 값 입력 → UPDATE → `navigate('/runs/:id')`에 실제 ID 사용 → 상세 SELECT → 변경값·BPM 표시 |
+| 삭제 | 상세의 삭제 클릭 → 확인 → DELETE → `navigate('/runs')` → 목록 SELECT → 삭제한 카드 제외 |
+
+`App`의 Route가 페이지를 선택하고, 입력·제출 이벤트가 state를 변경하며, 요청 응답에 따라 페이지가 다시 렌더링됩니다. 같은 목록 화면에서 백그라운드 동기화를 수행하는 기능은 없습니다.
+
+### 공통 상태 UI와 접근성 규칙
+
+조회 화면은 **로딩 → 오류 → 빈 결과 → 성공** 순서로 분기합니다. 문구는 호출부에서 `message`로 전달하며 컴포넌트 자체의 기본 문구는 없습니다.
+
+| 상태 | 컴포넌트·접근성 | 현재 사용하는 안내 문구 |
+| --- | --- | --- |
+| 로딩 | Loading의 `<p role="status">` | 러닝 기록을 불러오는 중... |
+| 조회 실패 | ErrorState의 `<p role="alert">` | 러닝 기록을 불러오는 중 오류가 발생했습니다. 또는 단건 조회 안내 |
+| 빈 목록 | EmptyState의 일반 `<p>` | 아직 러닝 기록이 없습니다. |
+| 없는 단건 | EmptyState의 일반 `<p>` | 러닝 기록을 찾을 수 없습니다. |
+| 저장·삭제 실패 | ErrorState의 `<p role="alert">` | 기록 저장/삭제 중 오류가 발생했습니다. 다시 시도해주세요. |
+
+공통 상태 컴포넌트는 전역 p 스타일을 따르는 텍스트 UI입니다. 별도의 색상·아이콘·개별 className이나 추가 aria 속성은 아직 없으며, 페이지별 장식을 추가하지 않고 동일한 컴포넌트를 사용합니다. status는 진행 안내, alert는 실패 안내, 일반 p는 빈 결과 안내로 구분합니다. 필드 검증 오류는 FormField에서 입력 근처에 표시하며 현재 aria-describedby 연결은 구현하지 않았습니다.
+
+### 폼 검증 범위와 오류 후 재시도
+
+다섯 필드는 비어 있으면 제출을 막고 필드별 오류를 표시합니다. 시간은 `45:10` 같은 분:초 문자열을 받지만 현재 빈 값 검증만 하며 초 범위·정규식 형식 검사는 하지 않습니다. 거리의 `step="0.01"`로 소수점 두 자리 입력을 허용하지만 양수 범위 같은 도메인 검증은 향후 보완 대상입니다. 서버가 값을 거부하면 catch에서 공통 저장 실패 메시지를 표시합니다.
+
+조회 전용 재시도 버튼과 자동 재시도 로직은 구현하지 않았습니다. 네트워크 복구 후 다른 경로로 이동했다가 돌아오거나 페이지를 새로고침하면 재조회합니다. 저장·삭제 실패는 finally에서 버튼을 다시 활성화하므로 같은 화면에서 재제출할 수 있습니다. 향후 Hook에 명시적인 refetch와 ErrorState의 재시도 버튼을 추가할 수 있습니다.
+
+### state 변경에 따른 화면 예시
+
+| 계기 | state 변경 | 화면 변화 |
+| --- | --- | --- |
+| 거리 입력 | `setFormData` | controlled input에 새 값 표시 |
+| 필수값 누락 제출 | `setErrors` | 해당 입력 근처에 오류 문구 표시 |
+| 오류 필드 재입력 | 해당 `errors[name]` 비우기 | 해당 필드 오류 문구 제거 |
+| 제출 시작·종료 | `setIsSubmitting(true/false)` | 저장 중... 및 버튼 비활성화·복구 |
+| 목록 조회 성공 | `setRuns(data)`와 로딩 종료 | 로딩 대신 runs.map의 카드 목록 표시 |
+| 단건 조회 성공 | `setRun(data)`와 로딩 종료 | 상세 카드·BPM 또는 초기값이 채워진 수정 폼 표시 |
+| 삭제 실패 | `setDeleteError` | 기록은 유지하고 실패 안내 표시 |
+
+실제 수정·삭제 후 화면은 [배포 실행 증거](docs/deployment-verification.md)에 첨부했습니다.
+
+### Supabase 선택 이유와 연동 문제 해결
+
+서버를 직접 구축하는 범위를 줄이고 React의 state·이벤트·비동기 렌더링 학습에 집중하기 위해 Supabase를 사용했습니다. 한 개의 running_records 테이블로 원격 CRUD를 구성했습니다.
+
+| 실제 겪은 문제 | 확인한 원인 | 해결 |
+| --- | --- | --- |
+| UPDATE 후 이동했지만 값이 그대로 | `data: []`, `error: null`이고 UPDATE RLS 정책이 없었음 | 공용 데모의 anon UPDATE 정책 추가. 수정 결과 0개 검사도 추가 |
+| 기록이 없을 때 상세 오류 | 객체 또는 null인 run에 length로 접근 | `run === null`로 빈 상태 검사 |
+| 수정 폼에 기존 시간 미표시 | `45:10`을 number input에 넣음 | text input과 시간(분:초) 라벨 사용 |
+| 소수점 거리 제출 제한 | number input의 기본 step이 1 | FormField에 step prop 전달, 거리에서 0.01 지정 |
+
+공개 데모 권한은 아래에 명시했으며, CORS 문제처럼 실제 겪지 않은 사례는 해결 경험에 포함하지 않습니다.
 
 ## Supabase 설정
 
