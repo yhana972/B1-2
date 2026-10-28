@@ -7,10 +7,12 @@ import ErrorState from '../components/ErrorState'
 import EmptyState from '../components/EmptyState'
 
 function RunListPage(){
+    // 목록은 여러 기록이므로 배열로 관리하고, JSX에서 map으로 RunCard를 만듭니다.
     const [runs, setRuns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    // 페이지 마운트 후 원격 데이터를 조회합니다. 개발 StrictMode에서는 추가 실행될 수 있습니다.
     useEffect(() => {
         async function fetchRuns(){
             try{
@@ -19,6 +21,7 @@ function RunListPage(){
                     .select('*')
                     .order('date', {ascending: false}); // 최근 기록이 먼저 보이도록 내림차순 정렬
                 if(error) throw error;
+                // state가 바뀌면 다시 렌더링되어 조회한 기록이 목록에 반영됩니다.
                 setRuns(data);
             }catch(error){
                 setError('러닝 기록을 불러오는 중 오류가 발생했습니다.');
@@ -37,6 +40,7 @@ function RunListPage(){
             <Link className="button" to="/runs/new">
                 새 기록 작성
             </Link>
+            {/* 로딩 → 오류 → 빈 배열 → 목록 순서로 구분해 실패와 빈 결과를 혼동하지 않습니다. */}
             {
                 loading
                 ?(<Loading message={"러닝 기록을 불러오는 중..."}/>)

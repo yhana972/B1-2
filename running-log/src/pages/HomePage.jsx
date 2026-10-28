@@ -1,3 +1,4 @@
+// 서비스 소개 화면입니다. 공통 내비게이션은 App의 Layout에서 함께 표시됩니다.
 function HomePage(){
     return(
         <section className="hero">

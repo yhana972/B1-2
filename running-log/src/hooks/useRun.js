@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient';
 
+// 상세·수정 페이지의 단건 조회를 공유하는 Custom Hook입니다. UI 대신 state를 반환합니다.
 function useRun(id){
+    // 단건 결과는 배열이 아니라 객체 또는 null입니다. 목록처럼 length로 검사하지 않습니다.
     const [run, setRun] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(()=>{
-        //이전 요처으이 늦은 응답 무시
+        // 각 Effect 실행마다 별도 변수를 가집니다. 이전 요청의 늦은 응답이 새 state를 덮어쓰지 않게 합니다.
         let ignore = false
 
         async function fetchRun(){
@@ -21,7 +23,9 @@ function useRun(id){
                     .from('running_records')
                     .select('*')
                     .eq('id', id)
+                    // 결과가 없으면 null, 한 개면 객체를 받습니다.
                     .maybeSingle()
+                // Supabase 응답 error를 catch로 전달합니다. await 자체가 브라우저 전체를 멈추지는 않습니다.
                 if(error) throw error;
                 if(!ignore) setRun(data);
             }catch(error){
@@ -34,11 +38,14 @@ function useRun(id){
             }
         }
         fetchRun();
+        // id 변경으로 다음 Effect를 실행하기 전, 또는 화면을 떠날 때 실행하는 cleanup입니다.
+        // 요청 자체를 취소하지 않고 이후 응답의 state 갱신을 무시합니다.
         return () => {
                 ignore = true
         }
-    },[id])
+    },[id]) // 최초 실행 후 id가 달라지면 다시 조회합니다.
 
+    // 호출하는 페이지가 조회 상태에 맞는 Loading/Error/Empty/성공 UI를 선택합니다.
     return {run, loading, error}
 }
 export default useRun
