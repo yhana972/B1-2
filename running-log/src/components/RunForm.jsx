@@ -89,11 +89,14 @@ function RunForm({initialData = {}, mode = 'create'}){
                 .eq('id', initialData.id)
                 .select()
 
-                console.log('수정결과', {data, error})
-
                 if(error){
                     throw error;
                 }
+
+                if(data.length === 0 ){
+                    throw new Error('수정된 기록이 없습니다.')
+                }
+                
                 navigate(`/runs/${initialData.id}`)
             }else{
                 //새 기록 저장
