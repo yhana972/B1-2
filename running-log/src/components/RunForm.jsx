@@ -3,6 +3,7 @@ import FormField from "./FormField";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router"
 import ErrorState from '../components/ErrorState'
+import SubmitButton from "./SubmitButton";
 
 function RunForm({initialData = {}, mode = 'create'}){
     const [formData, setFormData] = useState({
@@ -158,7 +159,7 @@ function RunForm({initialData = {}, mode = 'create'}){
                 error={errors.avgCadence}
             />
             {submitError && <ErrorState message={submitError}/>}
-            <button type="submit" disabled={isSubmitting}>{isSubmitting? '저장 중...' : (isEdit? '수정하기':'기록하기')}</button>
+            <SubmitButton isSubmitting={isSubmitting} label={isEdit? '수정하기':'기록하기'}/>
         </form>
     )
 }
