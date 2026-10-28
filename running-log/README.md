@@ -5,6 +5,7 @@ React를 학습하며 만든 러닝 기록 SPA입니다. 러닝 기록을 등록
 - 저장소: [yhana972/B1-2](https://github.com/yhana972/B1-2)
 - 앱 소스 위치: 저장소의 `running-log/`
 - 배포 URL: [Running Log](https://b1-2-flame.vercel.app/)
+- 배포 실행 증거: [CRUD 수행 로그와 화면 캡처 3장](docs/deployment-verification.md)
 
 ## 주요 기능
 
@@ -154,6 +155,19 @@ Vercel에 배포했습니다. [배포된 앱 열기](https://b1-2-flame.vercel.a
 - 아래 동작 점검은 로컬과 배포 환경에서 각각 수행합니다.
 
 ## 동작 점검 항목
+
+### 배포 환경 실행 증거
+
+2026-10-28 배포 앱에서 테스트 기록을 작성·조회하고, 거리와 케이던스를 수정한 뒤 새로고침 후 유지까지 확인했습니다. 테스트 기록 삭제는 사용자가 수행했고, 이후 해당 ID의 기록 없음 화면과 목록에서 사라진 상태를 다시 조회해 확인했습니다.
+
+- [입력값·URL·단계별 결과가 포함된 CRUD 실행 기록](docs/deployment-verification.md)
+- [수정 후 새로고침 화면](docs/evidence/01-updated-record-after-reload.png)
+- [삭제한 ID 재조회 화면](docs/evidence/02-deleted-record.png)
+- [삭제 후 목록 화면](docs/evidence/03-list-after-delete.png)
+
+![배포 앱에서 수정 후 새로고침한 결과](docs/evidence/01-updated-record-after-reload.png)
+
+### 점검 목록
 
 - 빈 폼 제출 시 필드별 오류 표시
 - 작성 후 목록 반영 및 카드 클릭 시 상세 이동
