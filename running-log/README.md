@@ -4,7 +4,7 @@ React를 학습하며 만든 러닝 기록 SPA입니다. 러닝 기록을 등록
 
 - 저장소: [yhana972/B1-2](https://github.com/yhana972/B1-2)
 - 앱 소스 위치: 저장소의 `running-log/`
-- 배포 URL: 배포 완료 후 추가 예정
+- 배포 URL: [Running Log](https://b1-2-flame.vercel.app/)
 
 ## 주요 기능
 
@@ -120,7 +120,7 @@ src/
 | id | 기록 식별자, 기본 키 및 자동 생성값 필요 | — |
 | date | 러닝 날짜 | date |
 | distance | 거리(km) | distance |
-| duration | 시간(분) | duration |
+| duration | 러닝 시간(분:초, 예: 45:10) | duration |
 | avg_pace | 평균 페이스 | avgPace |
 | avg_cadence | 평균 케이던스(spm) | avgCadence |
 
@@ -141,16 +141,17 @@ RLS를 켜둔 상태에서 로그인하지 않은 브라우저 요청에 사용�
 
 대시보드에서 만든 정책은 Git push에 포함되지 않습니다. 다른 Supabase 프로젝트를 사용하면 테이블과 정책을 별도로 구성해야 합니다.
 
-## 배포 준비
+## 배포
 
-배포는 아직 완료하지 않았습니다. 배포 후 URL과 최종 확인 결과를 갱신할 예정입니다.
+Vercel에 배포했습니다. [배포된 앱 열기](https://b1-2-flame.vercel.app/)
 
 - 앱 폴더: running-log
 - 빌드 명령: npm run build
 - 결과 폴더: dist
 - 배포 환경에 Supabase 환경변수 두 개 등록
-- 상세·수정 주소 직접 접속과 새로고침을 지원하는 SPA 라우팅 설정
-- 배포된 앱에서 전체 CRUD 확인
+- `vercel.json`의 rewrites 설정으로 페이지 요청을 `/index.html`에 연결합니다. React Router가 상세·수정 화면과 Not Found를 처리합니다.
+- GitHub 연동으로 변경 사항을 push하면 연결된 브랜치의 배포가 실행됩니다. 실제 반영 여부는 Vercel 배포 완료 상태에서 확인합니다.
+- 아래 동작 점검은 로컬과 배포 환경에서 각각 수행합니다.
 
 ## 동작 점검 항목
 
