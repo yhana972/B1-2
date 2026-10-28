@@ -50,7 +50,7 @@ function RunForm({initialData = {}, mode = 'create'}){
             newErrors.distance="거리(km)를 입력해주세요."
         }
         if(!formData.duration){
-            newErrors.duration="시간(분)을 입력해주세요."
+            newErrors.duration="시간(분:초)을 입력해주세요."
         }
         if(!formData.avgPace){
             newErrors.avgPace="평균 페이스를 입력해주세요."
@@ -96,7 +96,7 @@ function RunForm({initialData = {}, mode = 'create'}){
                 if(data.length === 0 ){
                     throw new Error('수정된 기록이 없습니다.')
                 }
-                
+
                 navigate(`/runs/${initialData.id}`)
             }else{
                 //새 기록 저장
@@ -138,8 +138,8 @@ function RunForm({initialData = {}, mode = 'create'}){
                 error={errors.distance}
             />
             <FormField 
-                label="시간(분)"
-                type="number"
+                label="시간(분:초)"
+                type="text"
                 name="duration"
                 value={formData.duration}
                 onChange={handleChange}
