@@ -19,12 +19,17 @@ function useRun(id){
             setRun(null);       //이전 기록 제거
 
             try{
+                // [SELECT: 단건 조회] 아래 SQL과 같은 조회 의도입니다. 실제 SQL 문자열을 보내는 코드는 아닙니다.
+                // SELECT * FROM running_records WHERE id = :id;
+                // :id는 설명용 매개변수 표시입니다. 실제 값은 .eq()의 두 번째 인자로 전달합니다.
+                // RLS 정책이 현재 요청에 허용한 행만 조회할 수 있습니다.
                 const { data, error } = await supabase
-                    .from('running_records')
-                    .select('*')
-                    .eq('id', id)
-                    // 결과가 없으면 null, 한 개면 객체를 받습니다.
+                    .from('running_records') // 조회할 테이블을 선택합니다.
+                    .select('*') // 해당 행의 모든 컬럼을 요청합니다.
+                    .eq('id', id) // WHERE id = 전달받은 id: 값이 같은 행만 남깁니다.
+                    // 0행은 null, 1행은 객체로 받습니다. 2행 이상이면 오류이며, 첫 행만 고르는 기능은 아닙니다.
                     .maybeSingle()
+                // data는 조회 결과, error는 요청 실패 정보입니다. 정상적인 0행 결과는 오류와 구분합니다.
                 // Supabase 응답 error를 catch로 전달합니다. await 자체가 브라우저 전체를 멈추지는 않습니다.
                 if(error) throw error;
                 if(!ignore) setRun(data);

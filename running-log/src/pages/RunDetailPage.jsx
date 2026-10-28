@@ -28,12 +28,15 @@ function RunDetailPage() {
         setDeleting(true);
 
         try{
+            // [DELETE: 기존 행 삭제] SQL로 보면 DELETE FROM running_records WHERE id=:id RETURNING id;
+            // :id는 설명용 매개변수입니다. 실제 값은 아래 .eq()에 전달합니다.
             const { data, error } = await supabase
-                .from('running_records')
-                .delete()
+                .from('running_records') // 삭제 대상 테이블입니다.
+                .delete() // 조건에 맞는 행을 원격 DB에서 제거합니다.
                 // 현재 기록만 삭제하고, 삭제된 ID를 반환받아 실제 처리 여부를 확인합니다.
                 .eq('id', run.id)
-                .select('id')
+                .select('id') // 별도 SELECT가 아니라 삭제 결과의 id만 반환하도록 요청합니다.
+            // data는 삭제된 행의 ID 객체 배열입니다. 삭제되지 않았다면 []일 수 있습니다.
             if(error) throw error;
 
             // error가 없어도 삭제 결과가 0개면 성공으로 이동하지 않습니다.

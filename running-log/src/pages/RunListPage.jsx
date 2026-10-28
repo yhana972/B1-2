@@ -16,10 +16,13 @@ function RunListPage(){
     useEffect(() => {
         async function fetchRuns(){
             try{
+                // [SELECT: 목록 조회] SQL로 보면 SELECT * FROM running_records ORDER BY date DESC;
+                // Supabase 클라이언트가 Data API 요청을 구성합니다. 조회 범위는 RLS 정책도 적용받습니다.
                 const { data, error } = await supabase
-                    .from('running_records')
-                    .select('*')
-                    .order('date', {ascending: false}); // 최근 기록이 먼저 보이도록 내림차순 정렬
+                    .from('running_records') // 대상 테이블을 지정합니다.
+                    .select('*') // 각 기록의 모든 컬럼을 가져옵니다.
+                    .order('date', {ascending: false}); // ORDER BY date DESC: 날짜가 최신인 기록부터 정렬합니다.
+                // 성공 시 data는 행 객체들의 배열입니다. 기록이 없으면 빈 배열 []을 받습니다.
                 if(error) throw error;
                 // state가 바뀌면 다시 렌더링되어 조회한 기록이 목록에 반영됩니다.
                 setRuns(data);

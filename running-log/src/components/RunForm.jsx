@@ -90,13 +90,17 @@ function RunForm({initialData = {}, mode = 'create'}){
             }
 
             if(isEdit){
-                //기존 기록 수정
+                // [UPDATE: 기존 행 수정] SQL의 의미는 다음과 같습니다(설명용 매개변수).
+                // UPDATE running_records SET date=:date, distance=:distance, duration=:duration,
+                // avg_pace=:avgPace, avg_cadence=:avgCadence WHERE id=:id RETURNING *;
+                // recordData의 키는 변경할 DB 컬럼, 값은 사용자가 현재 입력한 값입니다.
                 const {data, error} = await supabase
-                .from('running_records')
-                .update(recordData)
+                .from('running_records') // 수정할 테이블입니다.
+                .update(recordData) // 새 행을 만들지 않고 조건에 맞는 행의 컬럼 값을 바꿉니다.
                 // UPDATE는 반드시 수정 대상을 지정합니다.
                 .eq('id', initialData.id)
-                .select()
+                .select() // RETURNING *처럼 수정된 행의 모든 컬럼을 배열로 반환받습니다.
+                // 이 select는 별도 목록 조회가 아니라 UPDATE 결과 반환 요청입니다.
 
                 if(error){
                     throw error;
@@ -110,11 +114,14 @@ function RunForm({initialData = {}, mode = 'create'}){
                 // 이동한 상세 페이지가 다시 SELECT하여 저장된 최신 값을 표시합니다.
                 navigate(`/runs/${initialData.id}`)
             }else{
-                //새 기록 저장
-                 //서버 요청
+                // [INSERT: 새 행 추가] SQL의 의미는 다음과 같습니다(설명용 매개변수).
+                // INSERT INTO running_records (date, distance, duration, avg_pace, avg_cadence)
+                // VALUES (:date, :distance, :duration, :avgPace, :avgCadence);
+                // id는 보내지 않고 DB의 자동 생성 설정에 맡깁니다. 기존 행을 수정하는 작업은 아닙니다.
                 const {error} = await supabase
-                .from('running_records')
-                .insert([recordData])
+                .from('running_records') // 추가할 테이블입니다.
+                .insert([recordData]) // 배열의 객체 하나가 새 기록 한 행입니다. 여러 객체면 여러 행을 추가합니다.
+                // select를 붙이지 않았으므로 추가된 행을 반환받지 않고 error로 요청 실패를 확인합니다.
 
                 if(error){
                     throw error;
